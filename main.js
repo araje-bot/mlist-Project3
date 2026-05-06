@@ -417,13 +417,9 @@ function initStickyComposer() {
 
   let flightBusy = false;
 
-  composer.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" || e.shiftKey) return;
-    e.preventDefault();
+  function doSubmit() {
     const text = composer.value.trim();
-    if (!text) return;
-    if (flightBusy) return;
-
+    if (!text || flightBusy) return;
     flightBusy = true;
     const sourceEl = composer.closest(".sticky-stack__composer") || composer;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -431,18 +427,21 @@ function initStickyComposer() {
       flightSource: sourceEl,
       onFlightComplete: () => { flightBusy = false; },
     });
-    if (!li) {
-      flightBusy = false;
-      return;
-    }
+    if (!li) { flightBusy = false; return; }
     composer.value = "";
-    // Cycle the stack immediately so the next note rises without waiting for the flight
     cycleComposerStackAfterSubmit();
     playClickSound(520);
-    if (reduceMotion) {
-      li.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
+    if (reduceMotion) li.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  composer.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.shiftKey) return;
+    e.preventDefault();
+    doSubmit();
   });
+
+  const tickBtn = document.getElementById("sticky-submit");
+  tickBtn?.addEventListener("click", () => doSubmit());
 }
 
 /* =========================================================
