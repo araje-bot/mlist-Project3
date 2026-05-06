@@ -1,0 +1,2181 @@
+/* =========================================================
+   mList — design tokens (verbatim from Figma frame 131:2)
+   ========================================================= */
+:root {
+  --bg-card: #ffffff;
+  --bg-schedule: #e7eaee;
+  --bg-overlay: rgba(255, 255, 255, 0.6);
+
+  --fg-primary: #1a1c22;
+  --fg-secondary: #464d5d;
+  --fg-muted: #a4a4a4;
+
+  --border-soft: #e2e5ea;
+
+  --sticky-mint-bg: #c6f4e8;
+  --sticky-mint-border: #c6e7de;
+  --sticky-mint-text: #146752;
+
+  --sticky-blue-bg: #c6e8f4;
+  --sticky-blue-border: #c6dee7;
+  --sticky-blue-text: #145167;
+
+  --sticky-pink-bg: #f7d4d4;
+  --sticky-pink-border: #e7c6c6;
+  --sticky-pink-text: #671313;
+
+  --sticky-purple-bg: #e1d4f7;
+  --sticky-purple-border: #d2c6e7;
+  --sticky-purple-text: #341467;
+
+  --sticky-yellow-bg: #f7f4d4;
+  --sticky-yellow-border: #e7e4c6;
+  --sticky-yellow-text: #676013;
+
+  /* Gradients copied verbatim from Figma inspect */
+  --logo-gradient: linear-gradient(
+    101.5674393143083deg,
+    rgb(35, 39, 47) 2.5175%,
+    rgb(71, 176, 245) 106.87%
+  );
+  --vinyl-art-gradient: linear-gradient(
+    135.61605990839922deg,
+    rgb(51, 150, 248) 14.046%,
+    rgb(251, 245, 217) 86.71%
+  );
+
+  --font-sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Tektur", "Manrope", sans-serif;
+  --font-hand: "Nanum Pen Script", cursive;
+
+  /* Softer corners — panels vs controls (sidebar, lists, inputs). */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-card: 26px;
+  --radius-sticky: 14px;
+
+  /* Now playing clock + recently played durations (same apparent size). */
+  --font-size-music-time: 14px;
+}
+
+/* =========================================================
+   Reset
+   ========================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-weight: 200;
+  color: var(--fg-primary);
+  background-color: #f5e6d8;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  height: 100vh;
+  min-height: 858px;
+}
+
+/* =========================================================
+   Dynamic gradient background — warm amber/rose aurora (pure CSS)
+   No PNG dependency. Three animated radial-gradient blobs layered
+   over a warm cream base, with a SVG noise pseudo-element on top.
+   ========================================================= */
+@keyframes blob-drift-1 {
+  0%   { transform: translate(0, 0)    scale(1); }
+  33%  { transform: translate(60px, -40px) scale(1.08); }
+  66%  { transform: translate(-30px, 50px)  scale(0.95); }
+  100% { transform: translate(0, 0)    scale(1); }
+}
+@keyframes blob-drift-2 {
+  0%   { transform: translate(0, 0)    scale(1); }
+  33%  { transform: translate(-50px, 30px)  scale(1.06); }
+  66%  { transform: translate(40px, -60px) scale(0.97); }
+  100% { transform: translate(0, 0)    scale(1); }
+}
+@keyframes blob-drift-3 {
+  0%   { transform: translate(0, 0)    scale(1); }
+  33%  { transform: translate(30px, 55px)  scale(1.05); }
+  66%  { transform: translate(-55px, -25px) scale(0.96); }
+  100% { transform: translate(0, 0)    scale(1); }
+}
+
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: #fdf0e6;
+  overflow: hidden;
+}
+
+/* Noise grain overlay */
+.page-bg::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.13;
+  pointer-events: none;
+}
+
+/* Amber blob — top-left warm anchor */
+.page-bg__blob-1 {
+  position: absolute;
+  width: 900px;
+  height: 900px;
+  top: -200px;
+  left: -150px;
+  background: radial-gradient(ellipse at center, #f9a85a 0%, #fbc98a 35%, transparent 72%);
+  border-radius: 50%;
+  animation: blob-drift-1 18s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+/* Rose blob — top-right accent */
+.page-bg__blob-2 {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  top: -100px;
+  right: -200px;
+  background: radial-gradient(ellipse at center, #f07aa8 0%, #f5adc8 38%, transparent 72%);
+  border-radius: 50%;
+  animation: blob-drift-2 22s ease-in-out infinite;
+  opacity: 0.75;
+}
+
+/* Golden blob — bottom center warmth */
+.page-bg__blob-3 {
+  position: absolute;
+  width: 1000px;
+  height: 700px;
+  bottom: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, #fce06a 0%, #fde99a 40%, transparent 72%);
+  border-radius: 50%;
+  animation: blob-drift-3 26s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+/* Soft peach fill — bottom-left balance */
+.page-bg__blob-4 {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  bottom: -100px;
+  left: -100px;
+  background: radial-gradient(ellipse at center, #f9b89a 0%, #fdd4bc 40%, transparent 72%);
+  border-radius: 50%;
+  animation: blob-drift-1 30s ease-in-out infinite reverse;
+  opacity: 0.65;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 500;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================
+   App layout — Figma frame is 1512×858.
+   Horizontal split:
+     [ 36px pad ][ 360 sidebar ][ 36 gap ][ 1070 canvas ][ 10 pad ]
+   Total = 1512 exactly. */
+.app {
+  position: relative;
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+  height: 100vh;
+  min-height: 858px;
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(480px, 1fr);
+  column-gap: 28px;
+  padding: 0 10px 0 28px;
+  align-items: start;
+}
+
+/* =========================================================
+   Sidebar (music)
+   ========================================================= */
+.sidebar {
+  width: 100%;
+  padding: 36px 0 0 0;
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
+}
+
+.brand {
+  flex-shrink: 0;
+  padding-bottom: 44px;
+}
+
+/* Scrollable stack: music + recently played. Scrollbar hidden; trackpad / touch still scrolls. */
+.sidebar__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar__body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+.brand__logo {
+  margin: 0;
+  line-height: 0;
+}
+
+.brand__logo img {
+  display: block;
+  height: 24px;
+  width: auto;
+}
+
+.brand__tagline {
+  margin-top: 8px;
+  font-weight: 300;
+  font-size: 16px;
+  color: var(--fg-secondary);
+}
+
+/* music card — generate + now-playing stack flush (no gap), one column */
+.music {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.music__generate {
+  /* Liquid-glass card matching the schedule treatment */
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  backdrop-filter: blur(28px) saturate(150%);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+    0 16px 40px -28px rgba(35, 50, 90, 0.22);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.music__generate-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.music__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+}
+
+.music__subtitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--fg-secondary);
+  line-height: 1.35;
+}
+
+.music__prompt {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  height: 120px;
+  padding: 12px 12px 38px 12px;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+  border-radius: var(--radius-md);
+}
+
+.music__prompt:focus-within {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(71, 176, 245, 0.28);
+}
+
+.music__prompt.music__prompt--filled:not(:focus-within) {
+  border-color: rgba(60, 68, 89, 0.35);
+}
+
+.music__prompt textarea {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  resize: none;
+  outline: none;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--fg-primary);
+  background: transparent;
+  padding-right: 44px;
+}
+
+.music__prompt textarea::placeholder {
+  color: var(--fg-secondary);
+}
+
+.music__suggestion {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 44px;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.5;
+  color: transparent;
+  pointer-events: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.music__suggestion::after {
+  content: attr(data-ghost);
+  color: #8d95a0;
+}
+
+.music__suggestion-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border: 1px solid rgba(60, 68, 89, 0.22);
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(60, 68, 89, 0.45);
+  background: rgba(60, 68, 89, 0.05);
+  vertical-align: middle;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  user-select: none;
+}
+
+.music__send {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: transparent;
+  transition: opacity 0.16s ease;
+}
+
+.music__send:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.music__send:active:not(:disabled) {
+  opacity: 0.85;
+}
+
+.music__send:not(:disabled) {
+  opacity: 1;
+}
+
+.music__send:not(:disabled) img {
+  width: 26px;
+  height: 26px;
+  display: block;
+  filter: none;
+  opacity: 1;
+}
+
+.music__send:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.music__send:disabled img {
+  width: 26px;
+  height: 26px;
+  display: block;
+  filter: none;
+}
+
+.music__send:focus {
+  outline: none;
+}
+
+.music__send:focus-visible {
+  outline: 2px solid #47b0f5;
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.music__status {
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin: 0;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.music__status:empty {
+  display: none;
+}
+
+.music__generate-cancel {
+  position: absolute;
+  right: 44px;
+  bottom: 7px;
+  z-index: 2;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+  color: var(--fg-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.25;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.music__generate-cancel:hover {
+  border-color: rgba(60, 68, 89, 0.35);
+  color: var(--fg-primary);
+}
+
+.music__generate-cancel:focus-visible {
+  outline: 2px solid #47b0f5;
+  outline-offset: 2px;
+}
+
+.music__generate-cancel[hidden] {
+  display: none !important;
+}
+
+.music__status.is-error {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sticky-pink-text);
+  white-space: pre-line;
+  line-height: 1.4;
+  margin: 8px 0 4px;
+  padding: 10px 14px;
+  background: rgba(247, 212, 212, 0.42);
+  background: color-mix(in srgb, var(--sticky-pink-bg) 38%, var(--bg-card));
+  border: 1px solid var(--sticky-pink-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
+  min-width: 0;
+}
+
+.music__api-shell {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75) inset;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.music__api-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.music__api-toggle:hover {
+  background: rgba(35, 50, 90, 0.04);
+}
+
+.music__api-shell--expanded .music__api-toggle {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.music__api-toggle:focus {
+  outline: none;
+}
+
+.music__api-toggle:focus-visible {
+  outline: 2px solid #47b0f5;
+  outline-offset: -2px;
+}
+
+.music__api-toggle-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.music__api-toggle-text {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  line-height: 1.2;
+}
+
+.music__api-toggle-hint {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--fg-muted);
+  line-height: 1.35;
+}
+
+.music__api-chevron {
+  flex-shrink: 0;
+  color: var(--fg-secondary);
+  transition: transform 0.22s ease;
+}
+
+.music__api-toggle.is-open .music__api-chevron {
+  transform: rotate(180deg);
+}
+
+.music__api-panel {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px 14px;
+  border: none;
+  border-radius: 0;
+  background: rgba(35, 50, 90, 0.03);
+  box-shadow: none;
+}
+
+.music__api-shell.music__api-shell--expanded .music__api-panel:not([hidden]) {
+  display: flex;
+}
+
+.music__api-panel[hidden] {
+  display: none !important;
+}
+
+.music__api-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.music__api-sublabel {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--fg-muted);
+}
+
+.music__api-label {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--fg-secondary);
+}
+
+.music__api-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.music__api-fields input {
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--fg-primary);
+  background: var(--bg-card);
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.music__api-fields input::placeholder {
+  color: var(--fg-muted);
+}
+
+.music__api-fields input:focus {
+  outline: none;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(71, 176, 245, 0.28);
+}
+
+.music__api-save {
+  align-self: flex-start;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  background: var(--fg-primary);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.25;
+  transition: opacity 0.16s ease, background-color 0.16s ease;
+}
+
+.music__api-save:hover {
+  opacity: 0.92;
+}
+
+.music__api-save:active {
+  opacity: 0.88;
+}
+
+.music__api-save:focus-visible {
+  outline: 2px solid #47b0f5;
+  outline-offset: 2px;
+}
+
+.music__generate.is-loading .music__send:not(:disabled) img {
+  animation: music-send-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes music-send-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.88);
+    opacity: 0.85;
+  }
+}
+
+.music__generate.is-loading .music__send {
+  pointer-events: none;
+  opacity: 1;
+}
+
+.music__now-playing {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  overflow: hidden;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.music__now-playing.is-generating {
+  pointer-events: none;
+}
+
+/* Play / Stop button on now-playing card */
+.music__play-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #3c4459;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: background 140ms ease, transform 120ms ease;
+  border: none;
+  cursor: pointer;
+}
+
+.music__play-btn:hover {
+  background: #4e5670;
+}
+
+.music__play-btn:active {
+  transform: scale(0.92);
+}
+
+/* Show play icon when paused, stop icon when playing */
+.music__play-icon--stop { display: none; }
+[aria-pressed="true"] .music__play-icon--play { display: none; }
+[aria-pressed="true"] .music__play-icon--stop { display: block; }
+
+/* Play / Stop button on recently played cards */
+.recent__play-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #3c4459;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: background 140ms ease, transform 120ms ease;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.recent__item:hover .recent__play-btn,
+.recent__item.is-active .recent__play-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.recent__play-btn:hover { background: #4e5670; }
+.recent__play-btn:active { transform: scale(0.92); }
+
+.recent__play-icon--stop { display: none; }
+.recent__item.is-active .recent__play-icon--play { display: none; }
+.recent__item.is-active .recent__play-icon--stop { display: block; }
+/* Paused state: flip back to play icon */
+.recent__item.is-active.is-paused .recent__play-icon--play { display: block; }
+.recent__item.is-active.is-paused .recent__play-icon--stop { display: none; }
+
+.music__track-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 0 28px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+.music__track-loading[hidden] {
+  display: none !important;
+}
+
+/* Blur card content while generating, keep progress bar sharp */
+.music__now-playing.is-generating .music__art,
+.music__now-playing.is-generating .music__meta,
+.music__now-playing.is-generating .music__play-btn {
+  filter: blur(6px);
+  opacity: 0.35;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.music__now-playing .music__art,
+.music__now-playing .music__meta,
+.music__now-playing .music__play-btn {
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.music__track-progress-wrap {
+  flex: 1;
+  height: 3px;
+  border-radius: 99px;
+  background: rgba(60, 68, 89, 0.18);
+  overflow: hidden;
+}
+
+.music__track-progress-bar {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 99px;
+  background: var(--fg-primary);
+  transition: width 0.3s ease;
+}
+
+.music__track-progress-pct {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  letter-spacing: 0.02em;
+  min-width: 3ch;
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music__track-loading-spinner {
+    animation: none;
+    border-top-color: rgba(60, 68, 89, 0.35);
+  }
+}
+
+
+.music__art {
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.music__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vinyl {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  /* The vinyl PNG is intrinsically 2094×2136. The Figma layer has the
+     image fill stretched to the box (no clipping), so we mirror that. */
+  object-fit: contain;
+  animation: vinyl-spin 6s linear infinite;
+  animation-play-state: var(--vinyl-state, running);
+  will-change: transform;
+}
+
+@keyframes vinyl-spin {
+  to { transform: rotate(360deg); }
+}
+
+.music__track {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+}
+
+.music__track.is-scrolling .music__track-inner {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-scroll 8s linear infinite;
+}
+
+.music__time {
+  font-size: var(--font-size-music-time);
+  line-height: 1.35;
+  font-weight: 200;
+  color: var(--fg-secondary);
+  display: block;
+}
+
+.music__now-playing .music__time,
+.music__now-playing #now-time,
+.music__now-playing #now-duration {
+  font-size: var(--font-size-music-time);
+  line-height: 1.35;
+  font-weight: 200;
+}
+
+/* recently played — same liquid-glass card */
+.recent {
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  backdrop-filter: blur(28px) saturate(150%);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+    0 16px 40px -28px rgba(35, 50, 90, 0.22);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recent__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+}
+
+.recent__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recent__empty {
+  padding: 20px 12px;
+  text-align: center;
+}
+
+.recent__empty-text {
+  font-size: 13px;
+  font-weight: 300;
+  color: #9097a3;
+}
+
+.recent__item {
+  background: var(--bg-card);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.recent__item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -8px rgba(0, 0, 0, 0.25);
+}
+
+.recent__item.is-active {
+  box-shadow: inset 0 0 0 2px rgba(58, 161, 255, 0.45);
+  background: rgba(58, 161, 255, 0.06);
+}
+
+/* The recently-played art is exactly the Figma spec:
+   a 32×32 disc filled with the vinyl-art gradient, with the
+   ai-spark sparkle SVG centered on top. The gradient values are
+   copied verbatim from Figma.                                       */
+.recent__art {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-image: var(--vinyl-art-gradient);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+.recent__art img {
+  width: 12px;
+  height: 12px;
+}
+
+.recent__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--fg-secondary);
+  min-width: 0;
+}
+
+.recent__name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+/* Marquee scroll only when this item is actively playing */
+.recent__item.is-active .recent__name.is-scrolling {
+  text-overflow: clip;
+}
+.recent__item.is-active .recent__name.is-scrolling .recent__name-inner {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-scroll 8s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recent__name.is-scrolling .recent__name-inner {
+    animation: none;
+  }
+}
+
+.recent__duration {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-music-time);
+  line-height: 1.35;
+  font-weight: 300;
+}
+
+/* =========================================================
+   Canvas — board (684px) + schedule (386px) sit side-by-side
+   over the page noisy-gradient. Together they occupy the
+   1070-wide right column from x=432 to x=1502 in the Figma frame.
+   ========================================================= */
+.canvas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 386px);
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  min-height: 838px;
+  margin: 0;
+  position: relative;
+  z-index: 0;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  isolation: isolate;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.canvas > .board {
+  z-index: 1;
+}
+
+.canvas > .schedule {
+  z-index: 2;
+}
+
+/* =========================================================
+   Board (white card, 684px wide, rounded-left only)
+   ========================================================= */
+.board {
+  position: relative;
+  background: var(--bg-card);
+  height: 100%;
+  min-width: 0;
+  border-radius: 0;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.sidebar, .schedule {
+  will-change: transform, opacity;
+}
+
+.board__inner {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  /* So sticky fan uses `cqw` for proportional scaling within the board column. */
+  container-name: board;
+  container-type: inline-size;
+}
+
+/* Real Figma dot-grid SVG, repeated vertically (the Figma file uses
+   90 stacked instances of the same 1050×9 SVG at 9px stride).        */
+.board__dots {
+  position: absolute;
+  inset: 0;
+  background-image: url("./assets/textures/dot-grid-row.svg");
+  /* Tile horizontally + vertically so wide boards are covered (repeat-y alone stops at 1050px). */
+  background-repeat: repeat;
+  background-size: 1050px 9px;
+  background-position: 0 0;
+  pointer-events: none;
+}
+
+/* headline */
+.board__headline {
+  position: absolute;
+  top: 51px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--fg-secondary);
+  white-space: nowrap;
+  z-index: 3;
+}
+
+/* Real "SH*T" pill image background from Figma */
+.badge-shit {
+  display: inline-grid;
+  place-items: center;
+  padding: 5px 10px 2px;
+  border-radius: 30px;
+  background-image: url("./assets/icons/sht-pill-bg-2.png");
+  background-size: cover;
+  background-position: bottom;
+  color: #ffffff;
+  font-family: var(--font-hand);
+  font-weight: 100;
+  font-weight: 50;
+  font-size: 28px;
+  line-height: 24px;
+  transform: rotate(8deg);
+}
+
+/* 684×… Figma artboard: callout, arrow, and sticky fan share one centered, scaled frame */
+.board__scene {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 684px;
+  height: 100%;
+  z-index: 3;
+  transform: translateX(-50%);
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+@supports (width: 1cqw) {
+  .board__scene {
+    transform: translateX(-50%) scale(min(1, calc(100cqw / 684px)));
+  }
+}
+
+/* Hand-drawn “Note / Your tasks” + arrow — Figma Group 3 (163:22151); positions in board__scene coords */
+.hn-bubble,
+.hn-arrow {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.hn-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Figma Group 3 (163:22153–54): outer flex centers; −15° on wrapper; white sheet flex-centers label */
+.hn-bubble__tilt {
+  transform: rotate(-15deg);
+  flex-shrink: 0;
+}
+
+.hn-bubble__sheet {
+  background: #fff;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.hn-bubble__label {
+  width: 70px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: normal;
+  color: #464d5d;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.hn-bubble__label p {
+  margin: 0;
+}
+
+.hn-bubble--tasks {
+  left: 125px;
+  top: 190px;
+  width: 104.773px;
+  height: 76.489px;
+  right: auto;
+}
+
+/* Figma: flex 114.737×58, inner asset +15° — arrow ends toward stack without overlapping mint card */
+.hn-arrow--tasks {
+  left: 181.13px;
+  top: 251px;
+  width: 114.737px;
+  height: 58px;
+  right: auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hn-arrow--tasks img {
+  display: block;
+  width: 110.638px;
+  height: auto;
+  max-height: 30.401px;
+  object-fit: contain;
+  transform: rotate(15deg);
+  flex-shrink: 0;
+}
+
+/* Sticky stack — Figma Group 2 (163:22176); fills board__scene */
+.sticky-stack {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none; /* individual stickies opt-in below */
+}
+
+.sticky-stack .sticky {
+  pointer-events: auto;
+}
+
+.sticky-stack__composer {
+  pointer-events: auto;
+  z-index: 5;
+  /* Focus ring lives on this layer (transform: none via .sticky--stack-4) so Tab
+     never paints a browser outline on rotated under-cards or misaligned rects. */
+  border-radius: var(--radius-sticky);
+}
+
+.sticky-stack .sticky {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  transform-origin: center center;
+  padding: 24px;
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+  border-radius: var(--radius-sticky);
+}
+
+.sticky-stack .sticky textarea {
+  cursor: text;
+  user-select: text;
+  pointer-events: auto;
+}
+
+/* Fan + rotations from dev-mode export (240×240 faces, centered in Figma wrappers) */
+.sticky--stack-1 {
+  left: 221.997px;
+  top: 352.997px;
+  transform: rotate(-6.81deg);
+}
+.sticky--stack-2 {
+  left: 230.002px;
+  top: 345.002px;
+  transform: rotate(-0.76deg);
+}
+.sticky--stack-3 {
+  left: 237.901px;
+  top: 337.001px;
+  transform: rotate(9.22deg);
+}
+.sticky--stack-4 {
+  left: 246px;
+  top: 329px;
+  transform: none;
+}
+
+.sticky-stack__input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  margin: 0;
+  align-self: stretch;
+  /* Inset so script font overshoot + focus ring never clip first/last glyphs (parent .sticky is overflow:hidden). */
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  resize: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-hand);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--sticky-mint-text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.sticky--yellow .sticky-stack__input {
+  color: var(--sticky-yellow-text);
+}
+.sticky--purple .sticky-stack__input {
+  color: var(--sticky-purple-text);
+}
+.sticky--pink .sticky-stack__input {
+  color: var(--sticky-pink-text);
+}
+.sticky--mint .sticky-stack__input {
+  color: var(--sticky-mint-text);
+}
+
+/* Placeholder: faint tint of each note’s own ink — applied to all stickies, not just composer */
+.sticky--mint .sticky-stack__input::placeholder {
+  color: color-mix(in srgb, var(--sticky-mint-text) 35%, var(--sticky-mint-bg));
+  font-weight: 400;
+}
+.sticky--yellow .sticky-stack__input::placeholder {
+  color: color-mix(in srgb, var(--sticky-yellow-text) 35%, var(--sticky-yellow-bg));
+  font-weight: 400;
+}
+.sticky--purple .sticky-stack__input::placeholder {
+  color: color-mix(in srgb, var(--sticky-purple-text) 35%, var(--sticky-purple-bg));
+  font-weight: 400;
+}
+.sticky--pink .sticky-stack__input::placeholder {
+  color: color-mix(in srgb, var(--sticky-pink-text) 35%, var(--sticky-pink-bg));
+  font-weight: 400;
+}
+
+.sticky-stack__input::placeholder {
+  color: color-mix(in srgb, var(--sticky-mint-text) 35%, var(--sticky-mint-bg));
+  opacity: 1;
+  font-weight: 400;
+}
+
+.sticky-stack__input:focus,
+.sticky-stack__input:focus-visible {
+  outline: none;
+}
+
+.sticky-stack__composer.sticky--mint:focus-within {
+  box-shadow: inset 0 0 0 2px rgba(20, 103, 82, 0.35);
+}
+.sticky-stack__composer.sticky--yellow:focus-within {
+  box-shadow: inset 0 0 0 2px rgba(103, 96, 19, 0.45);
+}
+.sticky-stack__composer.sticky--purple:focus-within {
+  box-shadow: inset 0 0 0 2px rgba(52, 20, 103, 0.35);
+}
+.sticky-stack__composer.sticky--pink:focus-within {
+  box-shadow: inset 0 0 0 2px rgba(103, 19, 19, 0.35);
+}
+
+/* =========================================================
+   Sticky stack layers — exact Figma colors (.sticky-stack in board)
+   ========================================================= */
+.sticky {
+  width: 200px;
+  height: 200px;
+  padding: 10px;
+  border-radius: var(--radius-sticky);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid;
+  font-family: var(--font-hand);
+  font-size: 20px;
+  font-weight: 100;
+  line-height: 1.15;
+  user-select: none;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sticky--mint   { background: var(--sticky-mint-bg);   border-color: var(--sticky-mint-border);   color: var(--sticky-mint-text);   }
+.sticky--blue   { background: var(--sticky-blue-bg);   border-color: var(--sticky-blue-border);   color: var(--sticky-blue-text);   }
+.sticky--pink   { background: var(--sticky-pink-bg);   border-color: var(--sticky-pink-border);   color: var(--sticky-pink-text);   }
+.sticky--purple { background: var(--sticky-purple-bg); border-color: var(--sticky-purple-border); color: var(--sticky-purple-text); }
+.sticky--yellow { background: var(--sticky-yellow-bg); border-color: var(--sticky-yellow-border); color: var(--sticky-yellow-text); }
+
+/* =========================================================
+   Schedule panel — separate floating liquid-glass panel
+   (Figma node 142:11109).
+   --------------------------------------------------------- */
+.schedule {
+  background: rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: blur(40px) saturate(120%);
+  backdrop-filter: blur(40px) saturate(120%);
+  border: 1px solid var(--border-soft);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+  border-radius: 0;
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+}
+
+.schedule__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+}
+
+.schedule__subtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--fg-secondary);
+}
+
+.schedule__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(70, 77, 93, 0.28) transparent;
+}
+
+.schedule__list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.schedule__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.schedule__list::-webkit-scrollbar-thumb {
+  background-color: rgba(70, 77, 93, 0.26);
+  border-radius: 100px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.schedule__list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(70, 77, 93, 0.38);
+  background-clip: padding-box;
+}
+
+.schedule__item--flight-pending {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* After FLIP flight: real row eases in so it doesn’t pop / drift vs the ghost. */
+.schedule__item--flight-handoff {
+  animation: schedule-flight-handoff 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes schedule-flight-handoff {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schedule__item--flight-handoff {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.schedule-fly-card {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10050;
+  border-radius: var(--radius-md);
+  will-change: transform, opacity;
+  pointer-events: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  box-shadow:
+    0 18px 40px rgba(30, 31, 30, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.85) inset;
+  transform-origin: top left;
+}
+
+.schedule-fly-card__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-schedule);
+  font-size: 12pt;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule__item {
+  background: var(--bg-card);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: grab;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    background 160ms ease;
+  user-select: none;
+  touch-action: pan-y;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
+}
+
+.schedule__meta-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.schedule__delete {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 0;
+  background: rgba(35, 50, 90, 0.06);
+  color: var(--fg-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition:
+    opacity 0.2s ease,
+    background 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .schedule__delete {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .schedule__item:hover .schedule__delete,
+  .schedule__item:focus-within .schedule__delete {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.schedule__delete:hover {
+  background: rgba(220, 80, 80, 0.12);
+  color: #b83232;
+}
+
+.schedule__delete:active {
+  transform: scale(0.92);
+}
+
+.schedule__delete:focus-visible {
+  outline: 2px solid #3aa1ff;
+  outline-offset: 2px;
+}
+
+.schedule__item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -10px rgba(0, 0, 0, 0.18);
+}
+
+.schedule__item.is-grabbing {
+  cursor: grabbing;
+  opacity: 0.5;
+  transform: scale(0.97);
+  box-shadow: 0 18px 30px -16px rgba(0, 0, 0, 0.35);
+  touch-action: none;
+}
+
+.schedule__item.is-done .schedule__name {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+/* Newly-arrived rows (from a sticky): land like the reference mock — fade + slide up */
+.schedule__item.is-arriving {
+  animation: schedule-item-drop-in 0.44s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes schedule-item-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schedule__item.is-arriving {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* When a sticky is hovering over the schedule, glow the panel slightly so
+   the user understands they can drop it. */
+.schedule.is-drop-target {
+  box-shadow:
+    inset 0 0 0 2px rgba(58, 161, 255, 0.55),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.schedule__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+}
+
+/* The icon container is exactly 28×28 with 4px padding around a 20×20 icon,
+   matching Figma's `bg-[rgba(255,255,255,0.1)]`, `p-[4px]`, `rounded-[32px]`. */
+.schedule__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.schedule__icon > img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Composite projector icon. The wrapper structure mirrors Figma
+   nodes 131:11006 → 131:11013 exactly:
+     - schedule__icon centers a 16×16 .projector (the Figma
+       `aspect-[14/14] left-[10%] right-[10%]` box inside the 20×20
+       icon wrapper resolves to 16×16 centered).
+     - 5 cells positioned by % within the 16×16 box.
+     - Each cell holds an <img> with negative inset so the SVG stroke
+       extends past the cell bounds — this matches the Figma DOM. */
+/* The Figma reference has a 14×14 inner box; we use 16×16 (the actual
+   `aspect-[14/14] left-[10%] right-[10%]` resolves to 16×16 inside the 20×20
+   icon container). Cell positions are converted from Figma percentages
+   into explicit px so SVGs with `preserveAspectRatio="none"` size correctly. */
+.projector {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.projector__cell {
+  position: absolute;
+  display: block;
+  overflow: visible;
+}
+
+.projector__cell img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Vector 1 — projector body / screen rectangle (top:3.57%,
+   right:3.57%, bottom:25%, left:3.57% on a 16×16 box) */
+.projector__cell--v1 {
+  top: 0.57px;
+  left: 0.57px;
+  width: 14.86px;
+  height: 10.86px;
+}
+
+/* Vector 2 — horizontal divider line at the bottom of the body */
+.projector__cell--v2 {
+  top: 11.43px; /* y=4 from top of inner 14×14 + 0.57 padding offset */
+  left: 0.57px;
+  width: 14.86px;
+  height: 1.4px;
+  margin-top: -0.7px; /* center the 1.4px stroke on the line */
+}
+
+/* Vector 3 — vertical stem from rectangle bottom to floor */
+.projector__cell--v3 {
+  top: 12px;
+  left: 7.3px;
+  width: 1.4px;
+  height: 3.43px;
+}
+
+/* Vector 4 — left foot diagonal */
+.projector__cell--v4 {
+  top: 12px;
+  left: 2.86px;
+  width: 3.43px;
+  height: 3.43px;
+}
+
+/* Vector 5 — right foot diagonal */
+.projector__cell--v5 {
+  top: 12px;
+  left: 9.71px;
+  width: 3.43px;
+  height: 3.43px;
+}
+
+/* =========================================================
+   Responsive tweaks
+   ========================================================= */
+@media (max-width: 1280px) {
+  .app {
+    grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+    padding: 24px 8px 24px 24px;
+  }
+  .sidebar {
+    width: 100%;
+  }
+  .canvas {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  }
+}
+
+/* ── Tablet (≤ 980px): sidebar stacks above canvas ── */
+@media (max-width: 980px) {
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .app {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+    padding: 20px 16px 32px;
+    gap: 20px;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Let page scroll freely — disable internal scroll traps */
+  .sidebar__body {
+    overflow: visible;
+    height: auto;
+  }
+
+  .canvas {
+    margin-top: 0;
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr;
+    overflow: visible;
+    border-radius: var(--radius-card);
+  }
+
+  .board {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    height: auto;
+    min-height: 520px;
+  }
+
+  .board__inner {
+    height: auto;
+    min-height: 520px;
+  }
+
+  .schedule {
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+  }
+}
+
+/* ── Mobile (≤ 600px): compact single-column ── */
+@media (max-width: 600px) {
+  .app {
+    padding: 16px 12px 40px;
+    gap: 16px;
+  }
+
+  /* --- Brand --- */
+  .brand {
+    padding-bottom: 16px;
+  }
+
+  /* --- Music generate --- */
+  .music__generate {
+    gap: 10px;
+  }
+  .music__title {
+    font-size: 20px;
+  }
+  .music__subtitle {
+    font-size: 15px;
+  }
+
+  /* --- Now playing card --- */
+  .music__now-playing {
+    padding: 12px 14px;
+  }
+  .music__track {
+    font-size: 16px;
+  }
+  .music__time {
+    font-size: 15px;
+  }
+
+  /* --- Recently played --- */
+  .recent__title {
+    font-size: 18px;
+  }
+  .recent__meta {
+    font-size: 15px;
+  }
+  .recent__duration {
+    font-size: 14px;
+  }
+
+  /* --- Board headline: wrap gracefully on mobile --- */
+  .board__headline {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: normal;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 18px;
+    gap: 4px;
+    width: 88%;
+    text-align: center;
+  }
+  /* Keep SH*T badge its original size */
+  .board__headline .badge-shit {
+    font-size: 26px;
+  }
+  /* Let the cycling word shrink to fit its content on mobile */
+  #headline-word {
+    width: auto;
+    min-width: 2.4em;
+  }
+
+  /* --- Board scene: on mobile abandon the 684px coordinate system.
+         Set scene to full width, reposition children manually. --- */
+  .board__inner {
+    min-height: 540px;
+    height: 540px;
+  }
+
+  .board__scene {
+    width: 100%;
+    transform: translateX(-50%);
+  }
+
+  /* Disable the cqw scale — we're repositioning manually */
+  @supports (width: 1cqw) {
+    .board__scene {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Hint bubble: sits top-left of the board, above the sticky fan */
+  .hn-bubble--tasks {
+    left: 16px;
+    transform: none;
+    top: 90px;
+    width: 86px;
+    height: auto;
+  }
+
+  /* Arrow: flows from bubble toward the top-left corner of the fan */
+  .hn-arrow--tasks {
+    left: 80px;
+    transform: none;
+    top: 152px;
+    width: 68px;
+  }
+
+  .hn-arrow--tasks img {
+    transform: rotate(30deg);
+    max-height: 28px;
+  }
+
+  /* Sticky fan — comfortably sized for touch input */
+  .sticky-stack .sticky {
+    width: 200px;
+    height: 200px;
+    padding: 12px;
+  }
+
+  .sticky-stack__input {
+    font-size: 20px;
+    padding: 8px 10px;
+    line-height: 1.3;
+  }
+
+  .sticky--stack-1 {
+    left: 50%;
+    top: 240px;
+    transform: translateX(-50%) rotate(-6.81deg);
+  }
+  .sticky--stack-2 {
+    left: 50%;
+    top: 232px;
+    transform: translateX(-50%) rotate(-0.76deg);
+  }
+  .sticky--stack-3 {
+    left: 50%;
+    top: 224px;
+    transform: translateX(-50%) rotate(9.22deg);
+  }
+  .sticky--stack-4 {
+    left: 50%;
+    top: 216px;
+    transform: translateX(-50%);
+  }
+
+  /* --- Schedule --- */
+  .schedule {
+    padding: 20px 16px;
+  }
+  .schedule__head {
+    padding: 0;
+  }
+  .schedule__title {
+    font-size: 20px;
+  }
+  .schedule__subtitle {
+    font-size: 15px;
+  }
+  .schedule__list {
+    padding: 0;
+    gap: 8px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* Lock both card types to identical dimensions */
+  .schedule__item,
+  .recent__item {
+    padding: 10px 12px;
+    min-height: 56px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .schedule__name {
+    font-size: 15px;
+  }
+}
+
+#headline-word {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  vertical-align: baseline;
+  width: 2.8em;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Theme toggle button
+   ========================================================= */
+.theme-toggle {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.theme-toggle:active {
+  transform: scale(0.94);
+}
+
+.theme-toggle__icon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle__icon--blue { background: linear-gradient(135deg, #2aaaf2 0%, #a8a8e8 60%, #7dd4f8 100%); }
+.theme-toggle__icon--warm { background: linear-gradient(135deg, #f9a85a 0%, #f07aa8 55%, #fce06a 100%); }
+
+/* Warm theme active → show blue dot (indicates switching to blue) */
+.theme-toggle__icon--blue { opacity: 1; transform: scale(1); }
+.theme-toggle__icon--warm { opacity: 0; transform: scale(0.6); }
+
+/* Blue theme active → show warm dot (indicates switching to warm) */
+body.theme-blue .theme-toggle__icon--blue { opacity: 0; transform: scale(0.6); }
+body.theme-blue .theme-toggle__icon--warm { opacity: 1; transform: scale(1); }
+
+/* =========================================================
+   Theme: Blue (grainy texture PNG + blue assets)
+   ========================================================= */
+
+html.theme-blue-pre body,
+body.theme-blue {
+  background-color: #eef5fc;
+}
+
+
+html.theme-blue-pre .page-bg,
+body.theme-blue .page-bg {
+  background-color: #eef5fc;
+}
+
+/* Override blob colors to blue palette — same animation system as warm theme */
+html.theme-blue-pre .page-bg__blob-1,
+body.theme-blue .page-bg__blob-1 {
+  background: radial-gradient(ellipse at center, #2aaaf2 0%, #5cc4f8 40%, transparent 72%);
+}
+
+html.theme-blue-pre .page-bg__blob-2,
+body.theme-blue .page-bg__blob-2 {
+  background: radial-gradient(ellipse at center, #a8a8e8 0%, #c4c0ec 40%, transparent 72%);
+}
+
+html.theme-blue-pre .page-bg__blob-3,
+body.theme-blue .page-bg__blob-3 {
+  background: radial-gradient(ellipse at center, #7dd4f8 0%, #b0e4fc 42%, transparent 72%);
+}
+
+html.theme-blue-pre .page-bg__blob-4,
+body.theme-blue .page-bg__blob-4 {
+  background: radial-gradient(ellipse at center, #dff0fc 0%, #eef7fe 45%, transparent 72%);
+}
+
+html.theme-blue-pre .badge-shit,
+body.theme-blue .badge-shit {
+  background-image: url("./assets/icons/sht-pill-bg.png");
+}
+

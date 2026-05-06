@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mList — Productivity sounds good!</title>
+    <meta
+      name="description"
+      content="A music-powered to-do list. Generate flow-state mixes, capture tasks in the composer stack, and plan a flexible schedule."
+    />
+
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="./assets/fonts/manrope/manrope-300-normal-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="./assets/fonts/manrope/manrope-400-normal-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="./assets/fonts/manrope/manrope-500-normal-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="./assets/fonts/tektur/tektur-400-normal-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="./assets/fonts/nanum-pen-script/nanum-pen-script-400-normal-latin.woff2" />
+
+    <link rel="stylesheet" href="./assets/fonts/manrope/manrope.css" />
+    <link rel="stylesheet" href="./assets/fonts/tektur/tektur.css" />
+    <link rel="stylesheet" href="./assets/fonts/nanum-pen-script/nanum-pen-script.css" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script>if(localStorage.getItem('mlist-theme')==='blue')document.documentElement.classList.add('theme-blue-pre');</script>
+  </head>
+  <body>
+    <!-- Page background image -->
+    <div class="page-bg" aria-hidden="true">
+      <div class="page-bg__blob-1"></div>
+      <div class="page-bg__blob-2"></div>
+      <div class="page-bg__blob-3"></div>
+      <div class="page-bg__blob-4"></div>
+    </div>
+
+    <!-- Theme toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Switch theme" title="Switch theme">
+      <span class="theme-toggle__icon theme-toggle__icon--warm"></span>
+      <span class="theme-toggle__icon theme-toggle__icon--blue"></span>
+    </button>
+    <main class="app">
+      <!-- LEFT SIDEBAR — music -->
+      <aside class="sidebar" aria-label="Music">
+        <header class="brand">
+          <h1 class="brand__logo">
+            <img src="./assets/icons/mList.png" alt="mList" width="76" height="21" decoding="async" />
+          </h1>
+          <p class="brand__tagline">Productivity sounds good!</p>
+        </header>
+
+        <div class="sidebar__body">
+        <section class="music" aria-label="Music player">
+          <div class="music__generate">
+            <div class="music__generate-head">
+              <h2 class="music__title">Generate music..</h2>
+              <p class="music__subtitle">Find your flow with personalized music</p>
+            </div>
+
+            <form id="generate-form" class="music__prompt" autocomplete="off">
+              <label for="generate-input" class="visually-hidden">Describe your mix</label>
+              <span class="music__suggestion" id="generate-suggestion" aria-hidden="true"></span>
+              <textarea
+                id="generate-input"
+                name="prompt"
+                rows="3"
+                placeholder=""
+              ></textarea>
+              <button type="button" id="generate-cancel" class="music__generate-cancel" hidden aria-label="Stop generating">
+                Stop
+              </button>
+              <button id="generate-submit" type="submit" class="music__send" aria-label="Generate mix" disabled aria-disabled="true">
+                <img id="generate-submit-icon" src="./assets/icons/Generate-disabled.svg" alt="" width="26" height="26" />
+              </button>
+            </form>
+            <p id="generate-status" class="music__status" role="status" aria-live="polite"></p>
+          </div>
+
+          <div class="music__now-playing" id="play-toggle-card">
+            <span class="music__art" aria-hidden="true" style="opacity:0">
+              <img class="vinyl" src="./assets/images/vinyl-record.png" alt="" />
+            </span>
+            <span class="music__meta" style="opacity:0">
+              <span class="music__track">Lo-Fi Japanese Jazz</span>
+              <span class="music__time"><span id="now-time">02:42</span> / <span id="now-duration">43:40</span></span>
+            </span>
+            <button class="music__play-btn" id="play-toggle" aria-label="Play or pause" aria-pressed="false" style="opacity:0">
+              <svg class="music__play-icon music__play-icon--play" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="music__play-icon music__play-icon--stop" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            </button>
+            <span class="music__track-loading" id="now-playing-loading" hidden>
+              <span class="music__track-progress-wrap" aria-hidden="true">
+                <span class="music__track-progress-bar" id="generate-progress-bar"></span>
+              </span>
+              <span class="music__track-progress-pct" id="generate-progress-pct">0%</span>
+            </span>
+          </div>
+          <audio id="mlist-audio" preload="metadata" hidden playsinline></audio>
+        </section>
+
+        <section class="recent" aria-label="Recently played">
+          <h2 class="recent__title">Recent tracks</h2>
+          <ul class="recent__list" id="recent-list">
+            <li class="recent__empty" id="recent-empty">
+              <span class="recent__empty-text">Generate a track to get started</span>
+            </li>
+          </ul>
+        </section>
+        </div>
+      </aside>
+
+      <!-- CENTER + RIGHT — board (684px white card) + schedule (386px liquid-glass panel)
+           Both float over the page noisy-gradient. -->
+      <div class="canvas">
+      <section class="board" aria-label="To-do board">
+        <div class="board__inner">
+          <!-- Dot grid wallpaper (real Figma SVG, repeated vertically) -->
+          <div class="board__dots" aria-hidden="true"></div>
+
+          <h2 class="board__headline">
+            <span>A <span id="headline-word">simple</span>,</span>
+            <span>to-do list</span>
+            <span>to Get</span>
+            <span class="badge-shit" aria-label="stuff">SH*T</span>
+            <span>done!</span>
+          </h2>
+
+          <!-- Centered 684px Figma scene: callout + arrow + sticky fan move together responsively -->
+          <div class="board__scene">
+            <div class="hn-bubble hn-bubble--tasks">
+              <div class="hn-bubble__tilt">
+                <div class="hn-bubble__sheet">
+                  <div class="hn-bubble__label">
+                    <p>Note</p>
+                    <p>Your tasks</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="hn-arrow hn-arrow--tasks" aria-hidden="true">
+              <img src="./assets/icons/arrow-handwritten-1.svg" alt="" />
+            </div>
+
+            <div class="sticky-stack" aria-label="New sticky note">
+              <div class="sticky sticky--yellow"></div>
+              <div class="sticky sticky--purple"></div>
+              <div class="sticky sticky--pink"></div>
+              <div class="sticky sticky--mint sticky-stack__composer">
+                <label for="sticky-composer" class="visually-hidden">New sticky note</label>
+                <textarea
+                  id="sticky-composer"
+                  class="sticky-stack__input"
+                  rows="5"
+                  maxlength="600"
+                  placeholder="E.g. Capex slides deliverables"
+                  title="Press Enter to add to schedule. Shift+Enter for a new line."
+                  spellcheck="true"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="schedule" aria-label="Schedule">
+          <header class="schedule__head">
+            <h2 class="schedule__title">Schedule</h2>
+            <p class="schedule__subtitle">Plan your tasks with a flexible schedule</p>
+          </header>
+
+          <ul class="schedule__list" id="schedule-list">
+            <li class="schedule__item" draggable="true" tabindex="-1" data-id="builtin-aaron">
+              <span class="schedule__name">Call with Aaron</span>
+              <div class="schedule__meta-end">
+                <button type="button" class="schedule__delete" draggable="false" aria-label="Remove from schedule">×</button>
+              </div>
+            </li>
+            <li class="schedule__item" draggable="true" tabindex="-1" data-id="builtin-sarah">
+              <span class="schedule__name">Lunch with Sarah</span>
+              <div class="schedule__meta-end">
+                <button type="button" class="schedule__delete" draggable="false" aria-label="Remove from schedule">×</button>
+              </div>
+            </li>
+            <li class="schedule__item" draggable="true" tabindex="-1" data-id="builtin-brainstorm">
+              <span class="schedule__name">Team brainstorming session</span>
+              <div class="schedule__meta-end">
+                <button type="button" class="schedule__delete" draggable="false" aria-label="Remove from schedule">×</button>
+              </div>
+            </li>
+            <li class="schedule__item" draggable="true" tabindex="-1" data-id="builtin-deadline">
+              <span class="schedule__name">Project deadline review</span>
+              <div class="schedule__meta-end">
+                <button type="button" class="schedule__delete" draggable="false" aria-label="Remove from schedule">×</button>
+              </div>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </main>
+
+    <script src="./GSAP/gsap-public/minified/gsap.min.js"></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
