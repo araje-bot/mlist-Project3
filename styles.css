@@ -1479,27 +1479,27 @@ img {
 /* Generate button — larger on any touch device */
 @media (hover: none) and (pointer: coarse) {
   .music__send {
-    width: 32px !important;
-    height: 32px !important;
+    width: 36px !important;
+    height: 36px !important;
     right: 10px !important;
     bottom: 10px !important;
   }
   .music__send img {
-    width: 28px !important;
-    height: 28px !important;
+    width: 32px !important;
+    height: 32px !important;
   }
 }
 
 @media (max-width: 980px) {
   .music__send {
-    width: 32px !important;
-    height: 32px !important;
+    width: 36px !important;
+    height: 36px !important;
     right: 10px !important;
     bottom: 10px !important;
   }
   .music__send img {
-    width: 28px !important;
-    height: 28px !important;
+    width: 32px !important;
+    height: 32px !important;
   }
 }
 
