@@ -1454,12 +1454,14 @@ function initGenerate(playback, syncRecentListWithNowPlaying) {
   // Keep recent item icons in sync with actual audio play/pause state
   const audioEl = document.getElementById("mlist-audio");
   function syncRecentPlayIcons() {
-    const paused = audioEl ? audioEl.paused : true;
+    // readyState 0 means src just changed but not loaded yet — treat as playing intent
+    const paused = audioEl ? (audioEl.paused && audioEl.readyState > 0) : true;
     list.querySelectorAll(".recent__item.is-active").forEach((li) => {
       li.classList.toggle("is-paused", paused);
     });
   }
   audioEl?.addEventListener("play", syncRecentPlayIcons);
+  audioEl?.addEventListener("playing", syncRecentPlayIcons);
   audioEl?.addEventListener("pause", syncRecentPlayIcons);
   audioEl?.addEventListener("ended", syncRecentPlayIcons);
 
