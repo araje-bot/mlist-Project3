@@ -448,6 +448,11 @@ img {
   transition: opacity 0.16s ease;
 }
 
+.music__send img {
+  width: 26px;
+  height: 26px;
+}
+
 .music__send:hover:not(:disabled) {
   opacity: 0.92;
 }
@@ -1441,20 +1446,61 @@ img {
   height: 32px;
   border-radius: 50%;
   border: none;
-  background: rgba(20, 103, 82, 0.75);
-  color: #fff;
+  background: var(--sticky-mint-text);
+  color: var(--sticky-mint-bg);
   font-size: 16px;
   line-height: 1;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   pointer-events: auto;
-  backdrop-filter: blur(4px);
-  transition: background 0.15s, transform 0.1s;
+  opacity: 0.8;
+  transition: opacity 0.15s, transform 0.1s;
 }
 .sticky-submit-btn:active {
   transform: scale(0.9);
-  background: rgba(20, 103, 82, 1);
+  opacity: 1;
+}
+
+/* Match tick button colors to whichever sticky hue is currently the composer */
+.sticky--yellow .sticky-submit-btn {
+  background: var(--sticky-yellow-text);
+  color: var(--sticky-yellow-bg);
+}
+.sticky--purple .sticky-submit-btn {
+  background: var(--sticky-purple-text);
+  color: var(--sticky-purple-bg);
+}
+.sticky--pink .sticky-submit-btn {
+  background: var(--sticky-pink-text);
+  color: var(--sticky-pink-bg);
+}
+
+/* Generate button — larger on any touch device */
+@media (hover: none) and (pointer: coarse) {
+  .music__send {
+    width: 32px !important;
+    height: 32px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+  }
+  .music__send img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .music__send {
+    width: 32px !important;
+    height: 32px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+  }
+  .music__send img {
+    width: 28px !important;
+    height: 28px !important;
+  }
 }
 
 .sticky-stack__composer.sticky--mint:focus-within {
