@@ -610,7 +610,7 @@ function initBoardDots(board) {
   // Smoothed position used for rendering (lerps toward target each frame)
   let mx = -9999, my = -9999;
   let W = 0, H = 0, raf = 0;
-  const LERP = 0.35; // snappier follow — responsive without being instant
+  const LERP = 0.1; // smooth, fluid follow
   let pulsePhase = 0;
 
   function resize() {
