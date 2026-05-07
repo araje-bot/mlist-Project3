@@ -917,14 +917,14 @@ img {
   height: 100%;
   width: 0%;
   border-radius: 99px;
-  background: var(--fg-primary);
+  background: #3C4459;
   transition: width 0.3s ease;
 }
 
 .music__track-progress-pct {
   font-size: 15px;
   font-weight: 600;
-  color: var(--fg-primary);
+  color: #3C4459;
   letter-spacing: 0.02em;
   min-width: 3ch;
   text-align: right;
@@ -1358,7 +1358,7 @@ img {
   height: 240px;
   transform-origin: center center;
   padding: 24px;
-  cursor: grab;
+  cursor: default;
   user-select: none;
   overflow: hidden;
   border-radius: var(--radius-sticky);
