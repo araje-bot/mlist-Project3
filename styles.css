@@ -84,6 +84,7 @@ body {
   overflow-y: hidden;
   height: 100vh;
   min-height: 858px;
+  transition: background-color 0.7s ease;
 }
 
 /* =========================================================
@@ -116,6 +117,27 @@ body {
   z-index: -1;
   background-color: #fdf0e6;
   overflow: hidden;
+  transition: background-color 0.7s ease;
+}
+
+/* Blue theme overlay — created in JS, crossfaded by GSAP */
+.page-bg__blue-layer {
+  position: absolute;
+  inset: 0;
+  background-color: #eef5fc;
+  pointer-events: none;
+}
+.page-bg__blue-layer .page-bg__blob-1 {
+  background: radial-gradient(ellipse at center, #2aaaf2 0%, #5cc4f8 40%, transparent 72%);
+}
+.page-bg__blue-layer .page-bg__blob-2 {
+  background: radial-gradient(ellipse at center, #a8a8e8 0%, #c4c0ec 40%, transparent 72%);
+}
+.page-bg__blue-layer .page-bg__blob-3 {
+  background: radial-gradient(ellipse at center, #7dd4f8 0%, #b0e4fc 42%, transparent 72%);
+}
+.page-bg__blue-layer .page-bg__blob-4 {
+  background: radial-gradient(ellipse at center, #dff0fc 0%, #eef7fe 45%, transparent 72%);
 }
 
 /* Noise grain overlay */
@@ -1721,6 +1743,7 @@ img {
   place-items: center;
   transition:
     opacity 0.2s ease,
+    width 0.2s ease,
     background 140ms ease,
     color 140ms ease,
     transform 140ms ease;
@@ -1730,12 +1753,17 @@ img {
   .schedule__delete {
     opacity: 0;
     pointer-events: none;
+    width: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   .schedule__item:hover .schedule__delete,
   .schedule__item:focus-within .schedule__delete {
     opacity: 1;
     pointer-events: auto;
+    width: 28px;
   }
 }
 
@@ -2254,24 +2282,18 @@ body.theme-blue .page-bg {
   background-color: #eef5fc;
 }
 
-/* Override blob colors to blue palette — same animation system as warm theme */
-html.theme-blue-pre .page-bg__blob-1,
-body.theme-blue .page-bg__blob-1 {
+/* Blob colors for initial FOUC prevention (before JS runs, blue-pre class only).
+   During runtime, the .page-bg__blue-layer overlay handles blue blob colors via GSAP crossfade. */
+html.theme-blue-pre .page-bg__blob-1 {
   background: radial-gradient(ellipse at center, #2aaaf2 0%, #5cc4f8 40%, transparent 72%);
 }
-
-html.theme-blue-pre .page-bg__blob-2,
-body.theme-blue .page-bg__blob-2 {
+html.theme-blue-pre .page-bg__blob-2 {
   background: radial-gradient(ellipse at center, #a8a8e8 0%, #c4c0ec 40%, transparent 72%);
 }
-
-html.theme-blue-pre .page-bg__blob-3,
-body.theme-blue .page-bg__blob-3 {
+html.theme-blue-pre .page-bg__blob-3 {
   background: radial-gradient(ellipse at center, #7dd4f8 0%, #b0e4fc 42%, transparent 72%);
 }
-
-html.theme-blue-pre .page-bg__blob-4,
-body.theme-blue .page-bg__blob-4 {
+html.theme-blue-pre .page-bg__blob-4 {
   background: radial-gradient(ellipse at center, #dff0fc 0%, #eef7fe 45%, transparent 72%);
 }
 

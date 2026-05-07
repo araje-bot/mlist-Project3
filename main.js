@@ -611,6 +611,7 @@ function initBoardDots(board) {
   let mx = -9999, my = -9999;
   let W = 0, H = 0, raf = 0;
   const LERP = 0.35; // snappier follow — responsive without being instant
+  let pulsePhase = 0;
 
   function resize() {
     const r = canvas.getBoundingClientRect();
@@ -629,6 +630,9 @@ function initBoardDots(board) {
       my += (ty - my) * LERP;
     }
 
+    pulsePhase += 0.045;
+    const pulse = 0.5 + 0.5 * Math.sin(pulsePhase); // 0→1 smooth oscillation
+
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = DOT_COLOR;
     const cols = Math.ceil(W / SPACING) + 1;
@@ -639,7 +643,8 @@ function initBoardDots(board) {
         const y = r * SPACING + 1.5;
         const dist = Math.hypot(x - mx, y - my);
         const t = Math.max(0, 1 - dist / INFLUENCE);
-        const radius = BASE_R + (MAX_R - BASE_R) * t * t;
+        const pulsedMax = MAX_R * (0.72 + 0.28 * pulse); // breathes between 72%–100% of max
+        const radius = BASE_R + (pulsedMax - BASE_R) * t * t;
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, 6.2832);
         ctx.fill();
@@ -1831,21 +1836,39 @@ document.addEventListener("DOMContentLoaded", () => {
 (function () {
   const btn = document.getElementById("themeToggle");
   const logo = document.querySelector(".brand__logo img");
+  const pageBg = document.querySelector(".page-bg");
 
   const WARM_LOGO = "./assets/icons/mList.png";
   const BLUE_LOGO = "./assets/icons/mList-logo.svg";
 
-  function applyTheme(isBlue) {
+  // Build the blue overlay layer (clones blob structure, applies blue gradients via CSS)
+  const blueLayer = document.createElement("div");
+  blueLayer.className = "page-bg__blue-layer";
+  blueLayer.innerHTML = `
+    <div class="page-bg__blob-1" style="position:absolute;width:900px;height:900px;top:-200px;left:-150px;border-radius:50%;animation:blob-drift-1 18s ease-in-out infinite;opacity:0.85"></div>
+    <div class="page-bg__blob-2" style="position:absolute;width:800px;height:800px;top:-100px;right:-200px;border-radius:50%;animation:blob-drift-2 22s ease-in-out infinite;opacity:0.75"></div>
+    <div class="page-bg__blob-3" style="position:absolute;width:1000px;height:700px;bottom:-180px;left:50%;transform:translateX(-50%);border-radius:50%;animation:blob-drift-3 26s ease-in-out infinite;opacity:0.7"></div>
+    <div class="page-bg__blob-4" style="position:absolute;width:700px;height:700px;bottom:-100px;left:-100px;border-radius:50%;animation:blob-drift-1 30s ease-in-out infinite reverse;opacity:0.65"></div>
+  `;
+  gsap.set(blueLayer, { opacity: 0 });
+  pageBg?.appendChild(blueLayer);
+
+  function applyTheme(isBlue, animate) {
     document.documentElement.classList.remove("theme-blue-pre");
     document.body.classList.toggle("theme-blue", isBlue);
     if (logo) logo.src = isBlue ? BLUE_LOGO : WARM_LOGO;
     localStorage.setItem("mlist-theme", isBlue ? "blue" : "warm");
+    if (animate) {
+      gsap.to(blueLayer, { opacity: isBlue ? 1 : 0, duration: 0.7, ease: "power2.inOut" });
+    } else {
+      gsap.set(blueLayer, { opacity: isBlue ? 1 : 0 });
+    }
   }
 
   const saved = localStorage.getItem("mlist-theme");
-  applyTheme(saved === "blue");
+  applyTheme(saved === "blue", false);
 
   btn.addEventListener("click", () => {
-    applyTheme(!document.body.classList.contains("theme-blue"));
+    applyTheme(!document.body.classList.contains("theme-blue"), true);
   });
 })();
