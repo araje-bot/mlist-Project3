@@ -1,7 +1,7 @@
 # mList — Productivity sounds good!
 
-A music-powered to-do app built for **INST630**. Generate a flow-state mix,
-jot tasks on draggable sticky notes, and plan a flexible schedule.
+A music-powered to-do app built for **INST630**. Generate music for flow-state,
+Note tasks on sticky notes, and plan a flexible schedule.
 
 Implemented from the [Figma design](https://www.figma.com/design/AXu1VTiBjN9b1lT7Zi3ipx/Project-Proposal?node-id=131-2&m=dev) using **plain HTML + CSS + JavaScript**, with **every visual asset pulled directly from the Figma file** — no fabricated icons, no CDN font fallbacks, no CSS-recreated illustrations.
 
