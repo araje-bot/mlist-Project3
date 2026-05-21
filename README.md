@@ -56,8 +56,6 @@ cd Project-mList
 python3 -m http.server 5173
 ```
 
-Visit <http://localhost:5173>.
-
 ### Option B — Node
 
 ```bash
